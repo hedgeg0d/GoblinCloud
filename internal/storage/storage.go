@@ -26,6 +26,9 @@ var ErrNotExist = os.ErrNotExist
 type Store struct {
 	roots   []string
 	minFree uint64
+	// stat reports (free, total) bytes for a path. Pluggable so the balancer
+	// can be tested without touching a real filesystem.
+	stat func(string) (free, total uint64)
 }
 
 // Entry is one item in a directory listing.
@@ -58,7 +61,7 @@ func New(paths []string, minFree uint64) (*Store, error) {
 		}
 		roots = append(roots, filepath.Clean(abs))
 	}
-	return &Store{roots: roots, minFree: minFree}, nil
+	return &Store{roots: roots, minFree: minFree, stat: freeSpace}, nil
 }
 
 // clean normalises a logical path to a rooted, traversal-safe slash path.
@@ -99,7 +102,7 @@ func (s *Store) chooseWriteRoot() (string, error) {
 	best := ""
 	var bestFree uint64
 	for _, r := range s.roots {
-		free, _ := freeSpace(r)
+		free, _ := s.stat(r)
 		if free < s.minFree {
 			continue
 		}
@@ -395,7 +398,7 @@ func copyFile(src, dst string) error {
 func (s *Store) Status() []RootStatus {
 	out := make([]RootStatus, 0, len(s.roots))
 	for _, r := range s.roots {
-		free, total := freeSpace(r)
+		free, total := s.stat(r)
 		out = append(out, RootStatus{
 			Path:     r,
 			Total:    total,
