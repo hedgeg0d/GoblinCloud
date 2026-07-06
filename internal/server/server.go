@@ -7,9 +7,11 @@ import (
 	"crypto/tls"
 	"errors"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -23,7 +25,8 @@ import (
 )
 
 // Run builds every front door from cfg and serves until a signal arrives.
-func Run(cfg config.Config) error {
+// version is surfaced to the web UI via the info endpoint.
+func Run(cfg config.Config, version string) error {
 	minFree, err := cfg.MinFreeBytes()
 	if err != nil {
 		return err
@@ -33,7 +36,13 @@ func Run(cfg config.Config) error {
 		return err
 	}
 	a := auth.New(cfg.Auth.Enabled, cfg.Auth.PasswordHash)
-	handler := httpapi.New(store, a, cfg.Global())
+	info := httpapi.Info{
+		Version:    version,
+		FTPEnabled: cfg.FTP.Enabled,
+		FTPPort:    listenPort(cfg.FTP.Listen),
+		FTPTLS:     cfg.FTP.TLS,
+	}
+	handler := httpapi.New(store, a, cfg.Global(), info)
 
 	var tlsConfig *tls.Config
 	var certManager *autocert.Manager
@@ -120,4 +129,18 @@ func Run(cfg config.Config) error {
 		_ = ftp.Stop()
 	}
 	return nil
+}
+
+// listenPort extracts the numeric port from a "host:port" listen address,
+// returning 0 if it cannot be parsed.
+func listenPort(addr string) int {
+	_, portStr, err := net.SplitHostPort(addr)
+	if err != nil {
+		return 0
+	}
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return 0
+	}
+	return port
 }

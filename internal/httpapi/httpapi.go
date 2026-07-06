@@ -18,20 +18,30 @@ import (
 
 const cookieName = "gcsession"
 
+// Info is the server metadata exposed to the web UI (version, FTP details).
+type Info struct {
+	Version    string `json:"version"`
+	FTPEnabled bool   `json:"ftpEnabled"`
+	FTPPort    int    `json:"ftpPort"`
+	FTPTLS     bool   `json:"ftpTLS"`
+}
+
 // Server bundles the dependencies the HTTP handlers need.
 type Server struct {
 	store  *storage.Store
 	auth   *auth.Authenticator
 	secure bool // set Secure flag on the session cookie (HTTPS)
+	info   Info
 }
 
 // New builds the HTTP handler set. secure marks cookies for HTTPS deployments.
-func New(store *storage.Store, a *auth.Authenticator, secure bool) http.Handler {
-	s := &Server{store: store, auth: a, secure: secure}
+func New(store *storage.Store, a *auth.Authenticator, secure bool, info Info) http.Handler {
+	s := &Server{store: store, auth: a, secure: secure, info: info}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /api/login", s.handleLogin)
 	mux.HandleFunc("POST /api/logout", s.handleLogout)
+	mux.Handle("GET /api/info", s.guard(s.handleInfo))
 	mux.Handle("GET /api/files", s.guard(s.handleList))
 	mux.Handle("DELETE /api/files", s.guard(s.handleDelete))
 	mux.Handle("POST /api/folder", s.guard(s.handleFolder))
@@ -136,6 +146,10 @@ func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 // ---- file handlers ----
+
+func (s *Server) handleInfo(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, s.info)
+}
 
 func (s *Server) handleList(w http.ResponseWriter, r *http.Request) {
 	p := reqPath(r)

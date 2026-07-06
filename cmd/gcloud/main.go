@@ -100,7 +100,7 @@ func cmdServe(cfgPath string) error {
 	}
 	logging.Setup(cfg.Log)
 	slog.Info("starting goblin cloud", "config", path, "version", version)
-	if err := server.Run(cfg); err != nil {
+	if err := server.Run(cfg, version); err != nil {
 		return &codedError{3, err}
 	}
 	return nil
