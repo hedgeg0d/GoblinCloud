@@ -16,6 +16,10 @@
     drophint: $("drophint"),
     progress: $("progress"),
     bar: $("bar"),
+    upcard: $("upcard"),
+    upName: $("up-name"),
+    upPct: $("up-pct"),
+    upFill: $("up-fill"),
     toast: $("toast"),
   };
 
@@ -223,24 +227,53 @@
     const fd = new FormData();
     for (const f of files) fd.append("file", f, f.name);
 
+    const label = files.length === 1 ? files[0].name : t("uploadingN", { n: files.length });
+    showUpcard(label);
+
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/upload?path=" + encodeURIComponent(cwd));
     xhr.withCredentials = true;
     el.progress.classList.remove("hidden");
     el.bar.style.width = "0";
     xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) el.bar.style.width = (e.loaded / e.total * 100) + "%";
+      if (!e.lengthComputable) return;
+      const pct = Math.round((e.loaded / e.total) * 100);
+      setUpcard(pct, e.loaded, e.total);
     };
     xhr.onload = () => {
       el.progress.classList.add("hidden");
-      if (xhr.status === 401) { showLogin(); return; }
-      if (xhr.status >= 200 && xhr.status < 300) { toast(t("uploaded", { n: files.length })); load(cwd); }
-      else if (xhr.status === 507) { toast(t("noSpace"), true); }
-      else { toast(t("error"), true); }
+      if (xhr.status === 401) { hideUpcard(); showLogin(); return; }
+      if (xhr.status >= 200 && xhr.status < 300) {
+        finishUpcard();
+        toast(t("uploaded", { n: files.length }));
+        load(cwd);
+      } else {
+        hideUpcard();
+        toast(xhr.status === 507 ? t("noSpace") : t("error"), true);
+      }
     };
-    xhr.onerror = () => { el.progress.classList.add("hidden"); toast(t("error"), true); };
+    xhr.onerror = () => { hideUpcard(); el.progress.classList.add("hidden"); toast(t("error"), true); };
     xhr.send(fd);
   }
+
+  function showUpcard(name) {
+    el.upName.textContent = name;
+    el.upPct.textContent = "0%";
+    el.upFill.style.width = "0";
+    el.upcard.classList.remove("hidden", "done");
+  }
+  function setUpcard(pct, loaded, total) {
+    el.upFill.style.width = pct + "%";
+    el.upPct.textContent = total ? pct + "% (" + fmtSize(loaded) + " / " + fmtSize(total) + ")" : pct + "%";
+  }
+  function finishUpcard() {
+    el.upFill.style.width = "100%";
+    el.upPct.textContent = "100%";
+    el.upcard.classList.add("done");
+    clearTimeout(showUpcard._t);
+    showUpcard._t = setTimeout(hideUpcard, 1200);
+  }
+  function hideUpcard() { el.upcard.classList.add("hidden"); }
 
   // drag & drop
   let dragDepth = 0;

@@ -21,6 +21,7 @@
       newFolderName: "New folder name",
       renameTo: "Rename to",
       uploading: "Uploading…",
+      uploadingN: "{n} files",
       uploaded: "Uploaded {n} file(s)",
       deleted: "Deleted",
       renamed: "Renamed",
