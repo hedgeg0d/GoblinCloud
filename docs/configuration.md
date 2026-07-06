@@ -68,6 +68,13 @@ tls = false
 # Port range advertised for passive-mode data connections. Open this range on
 # the firewall when hosting behind NAT.
 passive_ports = "30000-30100"
+
+[log]
+# Verbosity. One of: debug, info, warn, error.
+level = "info"
+
+# Output format. text (human-readable / journal) or json (log aggregators).
+format = "text"
 ```
 
 ## Notes on individual keys
@@ -102,6 +109,20 @@ out-of-space error rather than filling a disk.
 Passive FTP needs a predictable data-port range through firewalls and NAT. Keep
 this range open externally and matching between the config and the firewall rule.
 
+### `log.level`
+
+Logs go to stderr (systemd/journald captures and rotates them). The level
+controls verbosity:
+
+- `error` — errors only.
+- `warn` — errors and warnings.
+- `info` (default) — the above plus lifecycle events (startup, the addresses
+  each service listens on, shutdown).
+- `debug` — the above plus a line per HTTP request (method, path, status,
+  duration) and verbose FTP output.
+
+Use `debug` while diagnosing, `info` in normal operation.
+
 ## Validation
 
 `gcloud config check` loads the file, applies defaults, and reports problems
@@ -111,3 +132,4 @@ without starting any service. It flags, among others:
 - `storage.paths` empty, or a path that doesn't exist / isn't writable.
 - Malformed `min_free` or `passive_ports`.
 - `auth.enabled = true` with an empty `password_hash`.
+- Unknown `log.level` or `log.format`.

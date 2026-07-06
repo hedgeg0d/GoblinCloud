@@ -70,6 +70,13 @@ The same binary covers two deployment shapes, switched purely by config:
 
 See [deployment.md](deployment.md) for both.
 
+## Logging
+
+All output goes through the standard library's `log/slog`. At startup the
+process installs one handler on stderr, built from the `[log]` config (level and
+text/json format), so every layer — HTTP, FTP, CLI — shares it. Level `debug`
+turns on per-request access logs. systemd/journald handles capture and rotation.
+
 ## What's deliberately absent
 
 - No database.
