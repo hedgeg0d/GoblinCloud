@@ -1,0 +1,32 @@
+[Unit]
+Description=Goblin Cloud
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=goblin
+Group=goblin
+ExecStart=/usr/local/bin/gcloud serve --config /etc/goblin/config.toml
+Restart=on-failure
+RestartSec=5
+
+# Writable locations. Add every storage.paths entry here.
+StateDirectory=goblin
+ReadWritePaths=/var/lib/goblin
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+# Needed only to bind :80/:443 in global mode; remove for LAN-only setups.
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target
