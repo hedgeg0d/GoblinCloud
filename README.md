@@ -1,4 +1,15 @@
+<p align="center">
+  <img src="logo.png" alt="Goblin Cloud" width="180">
+</p>
+
 <h1 align="center">🧌 Goblin Cloud</h1>
+
+<p align="center">
+  <a href="https://github.com/hedgeg0d/GoblinCloud/releases"><img src="https://img.shields.io/github/v/release/hedgeg0d/GoblinCloud?color=4ade80" alt="Release"></a>
+  <a href="https://github.com/hedgeg0d/GoblinCloud/actions"><img src="https://img.shields.io/github/actions/workflow/status/hedgeg0d/GoblinCloud/ci.yml?branch=main&label=CI" alt="CI"></a>
+  <img src="https://img.shields.io/github/go-mod/go-version/hedgeg0d/GoblinCloud" alt="Go">
+  <img src="https://img.shields.io/badge/platform-linux-2b90d9" alt="Platform">
+</p>
 
 <p align="center">
   <b>Your files. Your server. Three ways in.</b><br>
