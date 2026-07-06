@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <title>Goblin Cloud</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%8C%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <!-- Login -->
+  <section id="login" class="login hidden">
+    <form id="login-form" class="card">
+      <div class="brand"><span class="logo">🧌</span><h1>Goblin Cloud</h1></div>
+      <input id="password" type="password" autocomplete="current-password" data-i18n-ph="password">
+      <button type="submit" data-i18n="login">Log in</button>
+      <p id="login-error" class="error hidden" data-i18n="badPassword">Wrong password.</p>
+    </form>
+  </section>
+
+  <!-- App -->
+  <section id="app" class="app hidden">
+    <header class="topbar">
+      <div class="brand"><span class="logo">🧌</span><b>Goblin Cloud</b></div>
+      <nav id="crumbs" class="crumbs"></nav>
+      <div class="actions">
+        <button id="btn-theme" class="icon" title="Theme">◐</button>
+        <button id="btn-newfolder" class="ghost" data-i18n="newFolder">New folder</button>
+        <label class="ghost upload">
+          <span data-i18n="upload">Upload</span>
+          <input id="file-input" type="file" multiple hidden>
+        </label>
+        <button id="btn-logout" class="icon" title="Log out">⏻</button>
+      </div>
+    </header>
+
+    <main id="drop" class="listing">
+      <div id="empty" class="empty hidden" data-i18n="emptyFolder">This folder is empty.</div>
+      <table class="files">
+        <thead>
+          <tr>
+            <th data-i18n="name">Name</th>
+            <th class="col-size" data-i18n="size">Size</th>
+            <th class="col-mod" data-i18n="modified">Modified</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div id="drophint" class="drophint hidden" data-i18n="dropHere">Drop files to upload</div>
+    </main>
+
+    <div id="progress" class="progress hidden"><div id="bar"></div></div>
+    <div id="toast" class="toast hidden"></div>
+  </section>
+
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
