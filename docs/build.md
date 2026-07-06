@@ -36,7 +36,7 @@ Swap `GOARCH=arm64` for ARM servers and single-board machines.
 
 ## Version stamping
 
-The binary carries a built-in version (`main.version`, currently `0.1.0`). A
+The binary carries a built-in version (`main.version`, currently `0.2.0`). A
 plain `go build` reports that value. Release builds can override it with the
 current git tag:
 
