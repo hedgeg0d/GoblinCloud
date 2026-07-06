@@ -28,6 +28,16 @@
       folderCreated: "Folder created",
       error: "Something went wrong",
       noSpace: "No storage space left",
+      version: "Version",
+      ftpAccess: "FTP access",
+      enabled: "Enabled",
+      disabled: "Disabled",
+      host: "Host",
+      port: "Port",
+      encryption: "Encryption",
+      none: "None (plain FTP)",
+      copy: "Copy",
+      copied: "Copied",
     },
     // Add more languages here, e.g. `ru: { ... }`.
   };

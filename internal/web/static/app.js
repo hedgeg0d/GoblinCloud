@@ -26,14 +26,67 @@
   let cwd = "/";
 
   // ---- theme ----
+  const prefersDark = () =>
+    !window.matchMedia || window.matchMedia("(prefers-color-scheme: dark)").matches;
+
   function initTheme() {
-    const saved = localStorage.getItem("theme") || "dark";
-    document.documentElement.setAttribute("data-theme", saved);
+    // Explicit user choice wins; otherwise follow the system preference.
+    const saved = localStorage.getItem("theme");
+    const theme = saved || (prefersDark() ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
   }
   $("btn-theme").onclick = () => {
     const now = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", now);
     localStorage.setItem("theme", now);
+  };
+  // Track system changes while the user has made no explicit choice.
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+      if (!localStorage.getItem("theme")) {
+        document.documentElement.setAttribute("data-theme", e.matches ? "dark" : "light");
+      }
+    });
+  }
+
+  // ---- server info ----
+  async function loadInfo() {
+    let info;
+    try {
+      const res = await api("/api/info");
+      if (!res.ok) return;
+      info = await res.json();
+    } catch (_) { return; }
+
+    $("info-version").textContent = info.version || "—";
+    const details = $("info-ftp-details");
+    if (info.ftpEnabled) {
+      $("info-ftp").textContent = t("enabled");
+      details.classList.remove("hidden");
+      const host = location.hostname || "localhost";
+      const scheme = info.ftpTLS ? "ftps" : "ftp";
+      $("info-ftp-url").textContent = scheme + "://" + host + ":" + info.ftpPort;
+      $("info-host").textContent = host;
+      $("info-port").textContent = info.ftpPort;
+      $("info-tls").textContent = info.ftpTLS ? "FTPS (TLS)" : t("none");
+    } else {
+      $("info-ftp").textContent = t("disabled");
+      details.classList.add("hidden");
+    }
+  }
+  $("btn-info").onclick = () => { loadInfo(); $("info-overlay").classList.remove("hidden"); };
+  $("info-close").onclick = () => $("info-overlay").classList.add("hidden");
+  $("info-overlay").onclick = (e) => {
+    if (e.target === $("info-overlay")) $("info-overlay").classList.add("hidden");
+  };
+  $("info-copy").onclick = async () => {
+    const text = $("info-ftp-url").textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast(t("copied"));
+    } catch (_) {
+      toast(t("error"), true);
+    }
   };
 
   // ---- helpers ----

@@ -200,6 +200,39 @@ button.icon:hover { color: var(--text); }
 }
 .toast.err { border-color: var(--danger); color: var(--danger); }
 
+/* ---- Info modal ---- */
+.overlay {
+  position: fixed; inset: 0;
+  display: grid; place-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 50; padding: 20px;
+}
+.modal {
+  width: 100%; max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+.modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.info-grid { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; }
+.info-grid dt { color: var(--muted); font-size: 14px; }
+.info-grid dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.info-grid.sub { margin-top: 12px; }
+.ftp-details { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px; }
+.conn-row { display: flex; gap: 8px; align-items: center; }
+.conn-row code {
+  flex: 1; min-width: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  overflow-x: auto; white-space: nowrap;
+}
+.conn-row .ghost { flex-shrink: 0; padding: 8px 12px; }
+
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
   .col-mod { display: none; }
