@@ -1,6 +1,7 @@
 package ftpsrv
 
 import (
+	"errors"
 	"io/fs"
 	"os"
 	"time"
@@ -46,7 +47,7 @@ func (c *clientFS) Mkdir(name string, _ os.FileMode) error {
 }
 
 func (c *clientFS) MkdirAll(path string, _ os.FileMode) error {
-	if err := c.store.Mkdir(path); err != nil && !os.IsExist(err) {
+	if err := c.store.Mkdir(path); err != nil && !errors.Is(err, os.ErrExist) {
 		return err
 	}
 	return nil
