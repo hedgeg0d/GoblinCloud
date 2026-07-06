@@ -17,6 +17,7 @@ type Config struct {
 	Auth    Auth    `toml:"auth"`
 	Storage Storage `toml:"storage"`
 	FTP     FTP     `toml:"ftp"`
+	Log     Log     `toml:"log"`
 
 	// path is where this config was loaded from (not serialized).
 	path string
@@ -50,6 +51,12 @@ type FTP struct {
 	PassivePorts string `toml:"passive_ports"`
 }
 
+// Log holds logging settings.
+type Log struct {
+	Level  string `toml:"level"`  // debug | info | warn | error
+	Format string `toml:"format"` // text | json
+}
+
 // Default returns a config populated with the documented defaults.
 func Default() Config {
 	return Config{
@@ -72,6 +79,10 @@ func Default() Config {
 			Listen:       ":2121",
 			TLS:          false,
 			PassivePorts: "30000-30100",
+		},
+		Log: Log{
+			Level:  "info",
+			Format: "text",
 		},
 	}
 }
@@ -203,6 +214,16 @@ func (c Config) Validate() []string {
 		if _, _, err := c.PassivePortRange(); err != nil {
 			probs = append(probs, fmt.Sprintf("ftp.%v", err))
 		}
+	}
+	switch c.Log.Level {
+	case "debug", "info", "warn", "error":
+	default:
+		probs = append(probs, fmt.Sprintf("log.level %q must be one of debug, info, warn, error", c.Log.Level))
+	}
+	switch c.Log.Format {
+	case "text", "json":
+	default:
+		probs = append(probs, fmt.Sprintf("log.format %q must be text or json", c.Log.Format))
 	}
 	return probs
 }

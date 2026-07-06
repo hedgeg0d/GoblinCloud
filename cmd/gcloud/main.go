@@ -12,6 +12,7 @@ import (
 
 	"goblin_cloud/internal/auth"
 	"goblin_cloud/internal/config"
+	"goblin_cloud/internal/logging"
 	"goblin_cloud/internal/server"
 	"goblin_cloud/internal/storage"
 )
@@ -97,6 +98,7 @@ func cmdServe(cfgPath string) error {
 	if probs := cfg.Validate(); len(probs) > 0 {
 		return &codedError{2, fmt.Errorf("invalid config:\n  %s", strings.Join(probs, "\n  "))}
 	}
+	logging.Setup(cfg.Log)
 	slog.Info("starting goblin cloud", "config", path, "version", version)
 	if err := server.Run(cfg); err != nil {
 		return &codedError{3, err}

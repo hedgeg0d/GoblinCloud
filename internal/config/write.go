@@ -51,6 +51,13 @@ tls = false
 
 # Port range advertised for passive-mode data connections.
 passive_ports = "30000-30100"
+
+[log]
+# Verbosity: debug | info | warn | error. debug adds per-request access logs.
+level = "info"
+
+# Output format: text (human/journal) or json (log aggregators).
+format = "text"
 `
 
 // WriteTemplate writes the starter config to path. It refuses to overwrite an
