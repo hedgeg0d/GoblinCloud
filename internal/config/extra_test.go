@@ -89,6 +89,37 @@ func TestValidateMoreBranches(t *testing.T) {
 	if !hasProblem(c.Validate(), "min_free") {
 		t.Error("expected min_free problem")
 	}
+
+	// Bad log level.
+	c = Default()
+	c.Auth.Enabled = false
+	c.Storage.Paths = []string{good}
+	c.Log.Level = "loud"
+	if !hasProblem(c.Validate(), "log.level") {
+		t.Error("expected log.level problem")
+	}
+
+	// Bad log format.
+	c = Default()
+	c.Auth.Enabled = false
+	c.Storage.Paths = []string{good}
+	c.Log.Format = "xml"
+	if !hasProblem(c.Validate(), "log.format") {
+		t.Error("expected log.format problem")
+	}
+}
+
+func TestDefaultLogValid(t *testing.T) {
+	good := t.TempDir()
+	c := Default()
+	c.Auth.Enabled = false
+	c.Storage.Paths = []string{good}
+	if probs := c.Validate(); len(probs) != 0 {
+		t.Fatalf("default log config should be valid, got %v", probs)
+	}
+	if c.Log.Level != "info" || c.Log.Format != "text" {
+		t.Fatalf("unexpected log defaults: %+v", c.Log)
+	}
 }
 
 func TestWriteTemplateForceOnExisting(t *testing.T) {

@@ -3,6 +3,7 @@ package httpapi_test
 import (
 	"bytes"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
@@ -115,6 +116,41 @@ func TestInvalidPathRejected(t *testing.T) {
 	res.Body.Close()
 	if res.StatusCode != http.StatusBadRequest {
 		t.Fatalf("invalid path = %d, want 400", res.StatusCode)
+	}
+}
+
+func TestAccessLogEmittedAtDebug(t *testing.T) {
+	// Capture the default logger at debug so the access-log middleware fires.
+	prev := slog.Default()
+	t.Cleanup(func() { slog.SetDefault(prev) })
+	var buf bytes.Buffer
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelDebug})))
+
+	srv, c := newServer(t, 0)
+	res, _ := c.Get(srv.URL + "/api/files?path=/") // unauthenticated -> 401
+	res.Body.Close()
+
+	out := buf.String()
+	if !strings.Contains(out, "msg=request") {
+		t.Fatalf("expected an access-log line, got:\n%s", out)
+	}
+	if !strings.Contains(out, "method=GET") || !strings.Contains(out, "status=401") {
+		t.Fatalf("access log missing method/status:\n%s", out)
+	}
+}
+
+func TestNoAccessLogAtInfo(t *testing.T) {
+	prev := slog.Default()
+	t.Cleanup(func() { slog.SetDefault(prev) })
+	var buf bytes.Buffer
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo})))
+
+	srv, c := newServer(t, 0)
+	res, _ := c.Get(srv.URL + "/api/files?path=/")
+	res.Body.Close()
+
+	if strings.Contains(buf.String(), "msg=request") {
+		t.Fatalf("access log should be suppressed at info level:\n%s", buf.String())
 	}
 }
 
