@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"path"
 	"strings"
+	"time"
 
 	"goblin_cloud/internal/auth"
 	"goblin_cloud/internal/storage"
@@ -38,7 +39,44 @@ func New(store *storage.Store, a *auth.Authenticator, secure bool) http.Handler 
 	mux.Handle("GET /api/download", s.guard(s.handleDownload))
 	mux.Handle("POST /api/rename", s.guard(s.handleRename))
 	mux.Handle("/", web.Handler())
-	return mux
+	return logMiddleware(mux)
+}
+
+// logMiddleware records one access-log line per request at debug level, so the
+// configured log level controls request-level verbosity.
+func logMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(rec, r)
+		slog.Debug("request",
+			"method", r.Method,
+			"path", r.URL.Path,
+			"status", rec.status,
+			"bytes", rec.bytes,
+			"dur", time.Since(start).String(),
+			"remote", r.RemoteAddr,
+		)
+	})
+}
+
+// statusRecorder wraps http.ResponseWriter to capture the status code and the
+// number of bytes written for access logging.
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+	bytes  int
+}
+
+func (r *statusRecorder) WriteHeader(code int) {
+	r.status = code
+	r.ResponseWriter.WriteHeader(code)
+}
+
+func (r *statusRecorder) Write(b []byte) (int, error) {
+	n, err := r.ResponseWriter.Write(b)
+	r.bytes += n
+	return n, err
 }
 
 // ---- auth plumbing ----
