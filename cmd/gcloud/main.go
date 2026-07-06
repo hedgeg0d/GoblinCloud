@@ -235,7 +235,7 @@ type codedError struct {
 }
 
 func (e *codedError) Error() string { return e.err.Error() }
-func (e *codedError) Unwrap() error  { return e.err }
+func (e *codedError) Unwrap() error { return e.err }
 
 func exitCode(err error) int {
 	var ce *codedError

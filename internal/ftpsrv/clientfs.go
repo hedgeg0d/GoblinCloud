@@ -20,9 +20,9 @@ type clientFS struct {
 }
 
 var (
-	_ afero.Fs                                      = (*clientFS)(nil)
-	_ ftpserver.ClientDriverExtensionFileList       = (*clientFS)(nil)
-	_ ftpserver.ClientDriverExtentionFileTransfer   = (*clientFS)(nil)
+	_ afero.Fs                                    = (*clientFS)(nil)
+	_ ftpserver.ClientDriverExtensionFileList     = (*clientFS)(nil)
+	_ ftpserver.ClientDriverExtentionFileTransfer = (*clientFS)(nil)
 )
 
 func (c *clientFS) Name() string { return "goblincloud" }
@@ -65,8 +65,8 @@ func (c *clientFS) Stat(name string) (os.FileInfo, error) {
 }
 
 // The FTP server does not need these; keep them as accepted no-ops.
-func (c *clientFS) Chmod(string, os.FileMode) error        { return nil }
-func (c *clientFS) Chown(string, int, int) error           { return nil }
+func (c *clientFS) Chmod(string, os.FileMode) error            { return nil }
+func (c *clientFS) Chown(string, int, int) error               { return nil }
 func (c *clientFS) Chtimes(string, time.Time, time.Time) error { return nil }
 
 // ReadDir satisfies ClientDriverExtensionFileList (merged listing).
