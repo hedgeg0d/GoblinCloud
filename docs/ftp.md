@@ -28,11 +28,11 @@ ignored (or any value accepted); the password is checked against
 
 ## FTPS (FTP over TLS)
 
-Set `ftp.tls = true` to require explicit FTPS. The server reuses the same
-certificate source as HTTPS:
-
-- **Global mode** (`server.domain` set) → the autocert certificate.
-- Otherwise → the manually configured certificate, if any.
+Set `ftp.tls = true` to require explicit FTPS. The server reuses the HTTPS
+certificate obtained via autocert, so **FTPS requires global mode**
+(`server.domain` set). Enabling `ftp.tls` without a domain fails at startup with
+`ftp.tls is enabled but no certificate is available` — there is no manual
+certificate option.
 
 Clients must use explicit TLS (`AUTH TLS`) and encrypt both the control and data
 channels.

@@ -61,8 +61,8 @@ enabled = true
 # FTP control-connection bind address.
 listen = ":2121"
 
-# When true, require FTPS (explicit TLS). Reuses the same certificate source as
-# HTTPS: autocert in global mode, or the manual cert if configured.
+# When true, require FTPS (explicit TLS). Reuses the autocert HTTPS certificate,
+# so it requires global mode (server.domain set). Fails at startup otherwise.
 tls = false
 
 # Port range advertised for passive-mode data connections. Open this range on

@@ -32,6 +32,11 @@ view across all storage roots (see [storage.md](storage.md)). Path traversal
 Body: `{ "password": "…" }`. On success sets the session cookie and returns
 `204`. On failure returns `401`.
 
+### `POST /api/logout`
+
+Invalidates the current session and clears the cookie. Returns `204`. Safe to
+call without a valid session.
+
 ### `GET /api/files?path=/some/dir`
 
 List a directory. Returns the merged listing across all roots:

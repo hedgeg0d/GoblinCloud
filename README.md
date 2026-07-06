@@ -24,7 +24,7 @@ no cloud account. Just your server and your stuff.
 ## Why you might like it
 
 - **One binary.** No runtime, no dependencies. Download, run, done.
-- **Spread across disks.** Give it several folders and it spreads uploads across
+- **Spread across disks.** Give it several paths and it spreads uploads across
   them automatically, always writing to wherever there's the most room.
 - **Locks the door.** Set one password and the web UI, the API, and FTP are all
   protected. Nothing is stored in plain text.
