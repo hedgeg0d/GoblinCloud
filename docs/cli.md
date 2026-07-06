@@ -61,13 +61,21 @@ behaviour and spotting a full or missing disk.
 ```
 $ gcloud storage status
 ROOT                  TOTAL     FREE      WRITABLE
-/mnt/disk1/goblin     500 GB    altered   yes
+/mnt/disk1/goblin     500 GB    488 GB    yes
 /mnt/disk2/goblin     500 GB    12 GB     yes
 ```
 
 ### `gcloud version`
 
-Print version and build info, then exit.
+Print the version and exit. `gcloud --version` and `gcloud -v` are aliases.
+
+```
+$ gcloud version
+gcloud 0.1.0
+```
+
+The version is baked into the binary. Release builds may stamp a git tag over it
+with `-ldflags "-X main.version=…"` (see [build.md](build.md)).
 
 ## Exit codes
 

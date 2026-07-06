@@ -16,8 +16,9 @@ import (
 	"goblin_cloud/internal/storage"
 )
 
-// version is stamped at build time via -ldflags "-X main.version=...".
-var version = "dev"
+// version is the single source of truth for the release version. Release builds
+// may override it via -ldflags "-X main.version=..." (e.g. to stamp a git tag).
+var version = "0.1.0"
 
 const usage = `Goblin Cloud — FTP, REST API and web UI for your files.
 

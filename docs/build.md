@@ -36,14 +36,16 @@ Swap `GOARCH=arm64` for ARM servers and single-board machines.
 
 ## Version stamping
 
-Version info is injected at build time via `-ldflags -X`:
+The binary carries a built-in version (`main.version`, currently `0.1.0`). A
+plain `go build` reports that value. Release builds can override it with the
+current git tag:
 
 ```sh
 VERSION=$(git describe --tags --always)
 go build -ldflags "-s -w -X main.version=$VERSION" -o gcloud ./cmd/gcloud
 ```
 
-`gcloud version` prints whatever was stamped in.
+`gcloud version` prints whatever is baked in.
 
 ## Embedded assets
 
