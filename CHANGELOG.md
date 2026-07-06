@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0 — logging and translations
+
+### New
+
+- **Configurable logging.** Log level (`debug`/`info`/`warn`/`error`) and format
+  (`text`/`json`) are now set in the config file under `[log]`. HTTP access and
+  structured server logs make operations transparent.
+- **Internationalisation.** The web UI now ships with translations for 11
+  languages: English, Russian, German, French, Spanish, Italian, Portuguese,
+  Polish, Dutch, Japanese, and Chinese. The browser language is auto-detected;
+  the language can be switched via `localStorage`.
+
 ## 0.1.0 — first release
 
 The first cut of Goblin Cloud: one small binary that serves your files three

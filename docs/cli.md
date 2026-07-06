@@ -71,7 +71,7 @@ Print the version and exit. `gcloud --version` and `gcloud -v` are aliases.
 
 ```
 $ gcloud version
-gcloud 0.1.0
+gcloud 0.2.0
 ```
 
 The version is baked into the binary. Release builds may stamp a git tag over it
