@@ -131,7 +131,6 @@ button.icon:hover { color: var(--text); }
 .crumbs .sep { opacity: .5; }
 .crumbs .here { color: var(--text); font-weight: 600; }
 .actions { display: flex; align-items: center; gap: 8px; }
-.upload { display: inline-flex; align-items: center; cursor: pointer; }
 
 /* ---- Listing ---- */
 .listing { flex: 1; padding: 8px 12px 40px; position: relative; }
@@ -192,7 +191,5 @@ button.icon:hover { color: var(--text); }
   .col-mod { display: none; }
   .topbar { gap: 10px; }
   .crumbs { order: 3; flex-basis: 100%; }
-  .actions .ghost span { display: none; }
-  .upload::before { content: "⬆"; }
-  #btn-newfolder::before { content: "＋"; }
+  .actions .ghost { padding: 8px 11px; }
 }

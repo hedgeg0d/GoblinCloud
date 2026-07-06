@@ -215,6 +215,7 @@
   }
 
   // ---- upload ----
+  $("btn-upload").onclick = () => el.fileInput.click();
   el.fileInput.onchange = () => { uploadFiles(el.fileInput.files); el.fileInput.value = ""; };
 
   function uploadFiles(files) {
