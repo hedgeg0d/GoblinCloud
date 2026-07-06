@@ -27,7 +27,8 @@ func newServer(t *testing.T, minFree uint64) (*httptest.Server, *http.Client) {
 	}
 	hash, _ := auth.HashPassword(testPassword)
 	a := auth.New(true, hash)
-	srv := httptest.NewServer(httpapi.New(store, a, false))
+	info := httpapi.Info{Version: "test", FTPEnabled: true, FTPPort: 2121, FTPTLS: false}
+	srv := httptest.NewServer(httpapi.New(store, a, false, info))
 	t.Cleanup(srv.Close)
 
 	jar, _ := cookiejar.New(nil)

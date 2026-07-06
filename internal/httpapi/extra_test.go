@@ -154,6 +154,37 @@ func TestNoAccessLogAtInfo(t *testing.T) {
 	}
 }
 
+func TestInfoEndpoint(t *testing.T) {
+	srv, c := newServer(t, 0)
+
+	// Guarded: no auth -> 401.
+	res, _ := c.Get(srv.URL + "/api/info")
+	res.Body.Close()
+	if res.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("unauth info = %d, want 401", res.StatusCode)
+	}
+
+	login(t, srv, c, testPassword)
+	res, err := c.Get(srv.URL + "/api/info")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("info = %d, want 200", res.StatusCode)
+	}
+	var info struct {
+		Version    string `json:"version"`
+		FTPEnabled bool   `json:"ftpEnabled"`
+		FTPPort    int    `json:"ftpPort"`
+		FTPTLS     bool   `json:"ftpTLS"`
+	}
+	json.NewDecoder(res.Body).Decode(&info)
+	if info.Version != "test" || !info.FTPEnabled || info.FTPPort != 2121 {
+		t.Fatalf("unexpected info: %+v", info)
+	}
+}
+
 func TestWrongBasicAuth(t *testing.T) {
 	srv, _ := newServer(t, 0)
 	c := &http.Client{}

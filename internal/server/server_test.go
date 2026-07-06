@@ -38,7 +38,7 @@ func TestRunStartsAndShutsDown(t *testing.T) {
 	cfg := lanConfig(t)
 
 	done := make(chan error, 1)
-	go func() { done <- Run(cfg) }()
+	go func() { done <- Run(cfg, "test") }()
 
 	// Wait for the HTTP server to come up.
 	base := "http://" + cfg.Server.Listen + "/api/files?path=/"
@@ -77,7 +77,7 @@ func TestRunBadMinFree(t *testing.T) {
 	cfg.Auth.Enabled = false
 	cfg.Storage.Paths = []string{t.TempDir()}
 	cfg.Storage.MinFree = "not-a-size"
-	if err := Run(cfg); err == nil {
+	if err := Run(cfg, "test"); err == nil {
 		t.Fatal("expected error for bad min_free")
 	}
 }
@@ -87,7 +87,7 @@ func TestRunNoStorageRoots(t *testing.T) {
 	cfg.Auth.Enabled = false
 	cfg.Storage.Paths = nil
 	cfg.Storage.MinFree = "0"
-	if err := Run(cfg); err == nil {
+	if err := Run(cfg, "test"); err == nil {
 		t.Fatal("expected error for missing storage roots")
 	}
 }
@@ -100,7 +100,7 @@ func TestRunBadPassivePorts(t *testing.T) {
 	cfg.Server.Listen = fmt.Sprintf("127.0.0.1:%d", freePort(t))
 	cfg.FTP.Enabled = true
 	cfg.FTP.PassivePorts = "bogus"
-	if err := Run(cfg); err == nil {
+	if err := Run(cfg, "test"); err == nil {
 		t.Fatal("expected error for bad passive_ports")
 	}
 }
