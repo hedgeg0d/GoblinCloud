@@ -36,6 +36,7 @@
         <button id="btn-info" class="icon" title="Server info">ℹ</button>
         <button id="btn-theme" class="icon" title="Theme">◐</button>
         <button id="btn-newfolder" class="ghost" data-i18n="newFolder">New folder</button>
+        <button id="btn-note" class="ghost" data-i18n="note">Note</button>
         <button id="btn-upload" class="ghost" data-i18n="upload">Upload</button>
         <input id="file-input" type="file" multiple hidden>
         <button id="btn-logout" class="icon" title="Log out">⏻</button>
@@ -104,6 +105,34 @@
           </div>
         </div>
         <pre id="view-body" class="view-body"></pre>
+      </div>
+    </div>
+
+    <div id="notes-overlay" class="overlay hidden">
+      <div class="modal viewer">
+        <!-- List of notes: titles only, each with a delete cross. -->
+        <div id="notes-list-view">
+          <div class="modal-head">
+            <b data-i18n="notes">Notes</b>
+            <div class="view-tools">
+              <button id="notes-new" data-i18n="newNote">New note</button>
+              <button id="notes-close" class="icon" title="Close">✕</button>
+            </div>
+          </div>
+          <div id="notes-empty" class="empty hidden" data-i18n="noNotes">No notes yet.</div>
+          <ul id="notes-items" class="notes-items"></ul>
+        </div>
+        <!-- Editor: title + body for one note. -->
+        <div id="notes-edit-view" class="hidden">
+          <div class="modal-head">
+            <input id="note-title" type="text" class="note-name" data-i18n-ph="noteTitle" autocomplete="off">
+            <div class="view-tools">
+              <button id="note-save" data-i18n="save">Save</button>
+              <button id="note-back" class="icon" title="Back">←</button>
+            </div>
+          </div>
+          <textarea id="note-body" class="note-body" data-i18n-ph="noteBody" spellcheck="false"></textarea>
+        </div>
       </div>
     </div>
   </section>

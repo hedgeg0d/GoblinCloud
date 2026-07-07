@@ -8,6 +8,8 @@ import (
 	"log/slog"
 	"net/http"
 	"path"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +19,11 @@ import (
 )
 
 const cookieName = "gcsession"
+
+// notesDir is the hidden logical folder where web-UI notes live. It sits inside
+// the normal storage tree but is filtered out of file listings so notes never
+// show up as files.
+const notesDir = "/.web_interface_notes"
 
 // Info is the server metadata exposed to the web UI (version, FTP details).
 type Info struct {
@@ -45,6 +52,9 @@ func New(store *storage.Store, a *auth.Authenticator, secure bool, info Info) ht
 	mux.Handle("GET /api/files", s.guard(s.handleList))
 	mux.Handle("DELETE /api/files", s.guard(s.handleDelete))
 	mux.Handle("POST /api/folder", s.guard(s.handleFolder))
+	mux.Handle("GET /api/notes", s.guard(s.handleNotesList))
+	mux.Handle("POST /api/notes", s.guard(s.handleNoteSave))
+	mux.Handle("DELETE /api/notes", s.guard(s.handleNoteDelete))
 	mux.Handle("POST /api/upload", s.guard(s.handleUpload))
 	mux.Handle("GET /api/download", s.guard(s.handleDownload))
 	mux.Handle("POST /api/rename", s.guard(s.handleRename))
@@ -158,7 +168,15 @@ func (s *Server) handleList(w http.ResponseWriter, r *http.Request) {
 		writeStoreErr(w, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"path": p, "entries": entries})
+	// Hide the notes folder so notes never appear among files.
+	kept := entries[:0]
+	for _, e := range entries {
+		if "/"+e.Name == notesDir {
+			continue
+		}
+		kept = append(kept, e)
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"path": p, "entries": kept})
 }
 
 func (s *Server) handleFolder(w http.ResponseWriter, r *http.Request) {
@@ -174,6 +192,118 @@ func (s *Server) handleFolder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
+}
+
+// note is a single web-UI note: a titled scratch of text stored as a JSON file
+// under notesDir. The list view shows only Title; Body holds the text.
+type note struct {
+	ID      string    `json:"id"`
+	Title   string    `json:"title"`
+	Body    string    `json:"body"`
+	Updated time.Time `json:"updated"`
+}
+
+// validNoteID reports whether id is safe to use as a filename (no path tricks).
+func validNoteID(id string) bool {
+	if id == "" {
+		return false
+	}
+	for _, c := range id {
+		if !(c >= '0' && c <= '9' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '-' || c == '_') {
+			return false
+		}
+	}
+	return true
+}
+
+func notePath(id string) string { return notesDir + "/" + id + ".json" }
+
+// handleNotesList returns every note (title and body), newest first. A missing
+// notes folder simply means no notes yet.
+func (s *Server) handleNotesList(w http.ResponseWriter, r *http.Request) {
+	entries, err := s.store.List(notesDir)
+	if err != nil {
+		if errors.Is(err, storage.ErrNotExist) {
+			writeJSON(w, http.StatusOK, map[string]any{"notes": []note{}})
+			return
+		}
+		writeStoreErr(w, err)
+		return
+	}
+	notes := make([]note, 0, len(entries))
+	for _, e := range entries {
+		if e.IsDir || !strings.HasSuffix(e.Name, ".json") {
+			continue
+		}
+		f, err := s.store.OpenRead(notesDir + "/" + e.Name)
+		if err != nil {
+			continue
+		}
+		var n note
+		dec := json.NewDecoder(io.LimitReader(f, 8<<20))
+		derr := dec.Decode(&n)
+		f.Close()
+		if derr == nil {
+			notes = append(notes, n)
+		}
+	}
+	sort.Slice(notes, func(i, j int) bool { return notes[i].Updated.After(notes[j].Updated) })
+	writeJSON(w, http.StatusOK, map[string]any{"notes": notes})
+}
+
+// handleNoteSave creates a note (no id) or overwrites an existing one (id set).
+func (s *Server) handleNoteSave(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		ID    string `json:"id"`
+		Title string `json:"title"`
+		Body  string `json:"body"`
+	}
+	if err := json.NewDecoder(io.LimitReader(r.Body, 8<<20)).Decode(&body); err != nil {
+		writeErr(w, http.StatusBadRequest, "invalid request")
+		return
+	}
+	if strings.TrimSpace(body.Title) == "" {
+		writeErr(w, http.StatusBadRequest, "title required")
+		return
+	}
+	id := body.ID
+	if id == "" {
+		id = strconv.FormatInt(time.Now().UnixNano(), 36)
+	} else if !validNoteID(id) {
+		writeErr(w, http.StatusBadRequest, "invalid id")
+		return
+	}
+	n := note{ID: id, Title: body.Title, Body: body.Body, Updated: time.Now()}
+	data, _ := json.Marshal(n)
+	f, err := s.store.Create(notePath(id))
+	if err != nil {
+		writeStoreErr(w, err)
+		return
+	}
+	if _, err := f.Write(data); err != nil {
+		f.Close()
+		writeErr(w, http.StatusInternalServerError, "write failed")
+		return
+	}
+	if err := f.Close(); err != nil {
+		writeErr(w, http.StatusInternalServerError, "write failed")
+		return
+	}
+	writeJSON(w, http.StatusCreated, map[string]string{"id": id})
+}
+
+// handleNoteDelete removes one note by id.
+func (s *Server) handleNoteDelete(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if !validNoteID(id) {
+		writeErr(w, http.StatusBadRequest, "invalid id")
+		return
+	}
+	if err := s.store.Remove(notePath(id)); err != nil {
+		writeStoreErr(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Server) handleDelete(w http.ResponseWriter, r *http.Request) {

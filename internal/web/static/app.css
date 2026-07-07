@@ -264,6 +264,69 @@ button.icon:hover { color: var(--text); }
   color: var(--text);
 }
 
+/* ---- Notes ---- */
+/* The visible sub-view fills the modal so the editor's textarea can stretch. */
+#notes-list-view, #notes-edit-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.notes-items { list-style: none; margin: 0; padding: 0; flex: 1; overflow: auto; }
+.note-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+}
+.note-item:last-child { border-bottom: 1px solid var(--border); }
+.note-title {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 4px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.note-title:hover { color: var(--accent); }
+.note-del {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 6px 8px;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.note-del:hover { color: var(--danger); }
+
+/* ---- Note editor ---- */
+.note-name {
+  flex: 1;
+  min-width: 0;
+  margin-right: 12px;
+  padding: 8px 11px;
+  font: inherit;
+  font-weight: 600;
+}
+.note-body {
+  margin: 0;
+  flex: 1;
+  width: 100%;
+  min-height: 50vh;
+  resize: none;
+  overflow: auto;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 14px;
+  color: var(--text);
+  font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  tab-size: 4;
+  outline: none;
+}
+.note-body:focus { border-color: var(--accent); }
+
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
   .col-mod { display: none; }

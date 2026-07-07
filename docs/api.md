@@ -58,6 +58,28 @@ List a directory. Returns the merged listing across all roots:
 Body: `{ "path": "/some/dir/newname" }`. Create a directory. `201` on success,
 `409` if it already exists.
 
+### Notes
+
+Notes are titled text scraps kept apart from the file tree. They live in a
+hidden `.web_interface_notes` folder inside the storage roots and are filtered
+out of file listings, so they never appear as files.
+
+#### `GET /api/notes`
+
+Return every note, newest first: `{ "notes": [ { "id", "title", "body",
+"updated" }, … ] }`. An empty list when there are none.
+
+#### `POST /api/notes`
+
+Body: `{ "id"?, "title", "body" }`. Create a note (omit `id`) or overwrite an
+existing one (`id` set). `title` is required. Returns `201` and `{ "id": "…" }`.
+`400` on a blank title or a malformed id; `507` if no root has room.
+
+#### `DELETE /api/notes?id=<id>`
+
+Delete one note by id. `204` on success, `404` if it does not exist, `400` on a
+malformed id.
+
 ### `POST /api/upload?path=/some/dir`
 
 `multipart/form-data` with one or more file parts. Each file is stored under

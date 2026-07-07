@@ -134,8 +134,92 @@
   $("view-download").onclick = () => {
     if (viewPath) window.location = "/api/download?path=" + encodeURIComponent(viewPath);
   };
+  // ---- notes ----
+  // Notes are titled scraps of text kept apart from the file listing (server
+  // stores them in a hidden folder): handy to shuttle text between machines or
+  // to document what folders are for when several people share the drive.
+  let editingId = null; // id of the note open in the editor, null = new note
+
+  function showNotesView(which) {
+    $("notes-list-view").classList.toggle("hidden", which !== "list");
+    $("notes-edit-view").classList.toggle("hidden", which !== "edit");
+  }
+  function openNotes() {
+    $("notes-overlay").classList.remove("hidden");
+    showNotesView("list");
+    loadNotes();
+  }
+  function closeNotes() { $("notes-overlay").classList.add("hidden"); }
+
+  async function loadNotes() {
+    let data;
+    try {
+      const res = await api("/api/notes");
+      if (!res.ok) { toast(t("error"), true); return; }
+      data = await res.json();
+    } catch (_) { return; }
+    renderNotes(data.notes || []);
+  }
+  function renderNotes(notes) {
+    const ul = $("notes-items");
+    ul.innerHTML = "";
+    $("notes-empty").classList.toggle("hidden", notes.length > 0);
+    for (const n of notes) {
+      const li = document.createElement("li");
+      li.className = "note-item";
+      const title = document.createElement("span");
+      title.className = "note-title";
+      title.textContent = n.title || t("untitled");
+      title.onclick = () => openEditor(n);
+      const x = document.createElement("button");
+      x.className = "note-del";
+      x.textContent = "✕";
+      x.title = t("delete");
+      x.onclick = (e) => { e.stopPropagation(); delNote(n); };
+      li.append(title, x);
+      ul.appendChild(li);
+    }
+  }
+  function openEditor(n) {
+    editingId = n ? n.id : null;
+    $("note-title").value = n ? (n.title || "") : "";
+    $("note-body").value = n ? (n.body || "") : "";
+    showNotesView("edit");
+    setTimeout(() => (n ? $("note-body") : $("note-title")).focus(), 30);
+  }
+  async function delNote(n) {
+    if (!confirm(t("confirmDelete", { name: n.title || t("untitled") }))) return;
+    const res = await api("/api/notes?id=" + encodeURIComponent(n.id), { method: "DELETE" });
+    if (res.ok) { toast(t("noteDeleted")); loadNotes(); }
+    else { toast(t("error"), true); }
+  }
+  $("btn-note").onclick = openNotes;
+  $("notes-close").onclick = closeNotes;
+  $("notes-new").onclick = () => openEditor(null);
+  $("note-back").onclick = () => { showNotesView("list"); loadNotes(); };
+  $("notes-overlay").onclick = (e) => { if (e.target === $("notes-overlay")) closeNotes(); };
+  $("note-save").onclick = async () => {
+    const title = $("note-title").value.trim();
+    if (!title) { toast(t("titleRequired"), true); return; }
+    const payload = { title, body: $("note-body").value };
+    if (editingId) payload.id = editingId;
+    const res = await api("/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) { toast(t("noteSaved")); showNotesView("list"); loadNotes(); }
+    else { toast(res.status === 507 ? t("noSpace") : t("error"), true); }
+  };
+
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !$("view-overlay").classList.contains("hidden")) closeView();
+    if (e.key !== "Escape") return;
+    if (!$("notes-overlay").classList.contains("hidden")) {
+      if (!$("notes-edit-view").classList.contains("hidden")) { showNotesView("list"); loadNotes(); }
+      else closeNotes();
+    } else if (!$("view-overlay").classList.contains("hidden")) {
+      closeView();
+    }
   });
 
   // ---- helpers ----
