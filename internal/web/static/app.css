@@ -233,6 +233,37 @@ button.icon:hover { color: var(--text); }
 }
 .conn-row .ghost { flex-shrink: 0; padding: 8px 12px; }
 
+/* ---- Text viewer ---- */
+.modal.viewer {
+  max-width: 900px;
+  width: min(900px, 100%);
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+}
+.view-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.view-tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.view-tools .ghost { padding: 8px 12px; }
+.view-body {
+  margin: 0;
+  flex: 1;
+  overflow: auto;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 14px;
+  font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre;
+  tab-size: 4;
+  color: var(--text);
+}
+
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
   .col-mod { display: none; }

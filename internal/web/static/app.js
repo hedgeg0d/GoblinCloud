@@ -89,6 +89,55 @@
     }
   };
 
+  // Extensions we treat as viewable text, plus a size cap so we never pull a
+  // huge file into the DOM. Files above the cap fall back to download only.
+  const TEXT_EXT = new Set([
+    "txt", "md", "markdown", "log", "json", "xml", "yaml", "yml", "csv", "tsv",
+    "ini", "conf", "cfg", "toml", "env", "properties", "sh", "bash", "zsh",
+    "js", "mjs", "cjs", "ts", "jsx", "tsx", "css", "scss", "less", "html",
+    "htm", "svg", "go", "py", "rb", "rs", "c", "h", "cpp", "hpp", "cc", "java",
+    "kt", "php", "pl", "lua", "sql", "r", "gitignore", "dockerfile", "makefile",
+  ]);
+  const TEXT_MAX = 2 * 1024 * 1024; // 2 MB
+
+  function isTextFile(it) {
+    if (it.type !== "file" || it.size > TEXT_MAX) return false;
+    const name = it.name.toLowerCase();
+    const dot = name.lastIndexOf(".");
+    const ext = dot > 0 ? name.slice(dot + 1) : name; // dotfiles: match whole name
+    return TEXT_EXT.has(ext);
+  }
+
+  // ---- text viewer ----
+  let viewPath = null;
+  async function openView(name) {
+    const p = join(cwd, name);
+    viewPath = p;
+    $("view-name").textContent = name;
+    $("view-body").textContent = t("loading");
+    $("view-overlay").classList.remove("hidden");
+    try {
+      const res = await api("/api/download?path=" + encodeURIComponent(p));
+      if (!res.ok) { $("view-body").textContent = t("error"); return; }
+      $("view-body").textContent = await res.text();
+    } catch (_) {
+      $("view-body").textContent = t("error");
+    }
+  }
+  function closeView() {
+    $("view-overlay").classList.add("hidden");
+    $("view-body").textContent = "";
+    viewPath = null;
+  }
+  $("view-close").onclick = closeView;
+  $("view-overlay").onclick = (e) => { if (e.target === $("view-overlay")) closeView(); };
+  $("view-download").onclick = () => {
+    if (viewPath) window.location = "/api/download?path=" + encodeURIComponent(viewPath);
+  };
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !$("view-overlay").classList.contains("hidden")) closeView();
+  });
+
   // ---- helpers ----
   function fmtSize(n) {
     if (n === 0) return "—";
@@ -220,6 +269,9 @@
 
     const tdAct = document.createElement("td");
     tdAct.className = "row-actions";
+    if (isTextFile(it)) {
+      tdAct.appendChild(mkBtn("👁", t("view"), () => openView(it.name)));
+    }
     if (it.type === "file") {
       tdAct.appendChild(mkBtn("⬇", t("download"), () => {
         window.location = "/api/download?path=" + encodeURIComponent(p);

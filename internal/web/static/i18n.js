@@ -38,6 +38,8 @@
       none: "None (plain FTP)",
       copy: "Copy",
       copied: "Copied",
+      view: "View",
+      loading: "Loading…",
     },
     ru: {
       login: "Войти",
@@ -74,6 +76,8 @@
       none: "Нет (обычный FTP)",
       copy: "Копировать",
       copied: "Скопировано",
+      view: "Просмотр",
+      loading: "Загрузка…",
     },
     de: {
       login: "Anmelden",
@@ -110,6 +114,8 @@
       none: "Keine (reines FTP)",
       copy: "Kopieren",
       copied: "Kopiert",
+      view: "Ansehen",
+      loading: "Wird geladen…",
     },
     fr: {
       login: "Connexion",
@@ -146,6 +152,8 @@
       none: "Aucun (FTP simple)",
       copy: "Copier",
       copied: "Copié",
+      view: "Afficher",
+      loading: "Chargement…",
     },
     es: {
       login: "Iniciar sesión",
@@ -182,6 +190,8 @@
       none: "Ninguno (FTP plano)",
       copy: "Copiar",
       copied: "Copiado",
+      view: "Ver",
+      loading: "Cargando…",
     },
     it: {
       login: "Accedi",
@@ -218,6 +228,8 @@
       none: "Nessuna (FTP semplice)",
       copy: "Copia",
       copied: "Copiato",
+      view: "Visualizza",
+      loading: "Caricamento…",
     },
     pt: {
       login: "Entrar",
@@ -254,6 +266,8 @@
       none: "Nenhuma (FTP simples)",
       copy: "Copiar",
       copied: "Copiado",
+      view: "Visualizar",
+      loading: "Carregando…",
     },
     pl: {
       login: "Zaloguj się",
@@ -290,6 +304,8 @@
       none: "Brak (zwykły FTP)",
       copy: "Kopiuj",
       copied: "Skopiowano",
+      view: "Podgląd",
+      loading: "Ładowanie…",
     },
     nl: {
       login: "Inloggen",
@@ -326,6 +342,8 @@
       none: "Geen (plain FTP)",
       copy: "Kopiëren",
       copied: "Gekopieerd",
+      view: "Bekijken",
+      loading: "Laden…",
     },
     ja: {
       login: "ログイン",
@@ -362,6 +380,8 @@
       none: "なし (プレーンFTP)",
       copy: "コピー",
       copied: "コピーしました",
+      view: "表示",
+      loading: "読み込み中…",
     },
     zh: {
       login: "登录",
@@ -398,6 +418,8 @@
       none: "无（纯 FTP）",
       copy: "复制",
       copied: "已复制",
+      view: "查看",
+      loading: "加载中…",
     },
   };
 
