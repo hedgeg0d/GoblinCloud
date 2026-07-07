@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.0 — viewing and notes
+
+### New
+
+- **Text file viewer.** Preview text files right in the browser — an eye button
+  opens them in a scrollable panel without downloading, with a download button
+  still one click away.
+- **Notes.** A dedicated notes panel (opened from the toolbar) for titled scraps
+  of text: handy to shuttle text between machines or to document what folders are
+  for on a shared drive. Notes are kept in a hidden folder and never clutter the
+  file listing.
+
+### Changed
+
+- The **Log out** button is now hidden on password-less servers, where there is
+  no session to end.
+
 ## 0.2.0 — logging and translations
 
 ### New
