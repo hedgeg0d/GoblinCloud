@@ -58,6 +58,9 @@
       info = await res.json();
     } catch (_) { return; }
 
+    // No password on the server means there is no session to end: hide logout.
+    $("btn-logout").classList.toggle("hidden", !info.authEnabled);
+
     $("info-version").textContent = info.version || "—";
     const details = $("info-ftp-details");
     if (info.ftpEnabled) {
@@ -262,6 +265,7 @@
   function showApp() {
     el.login.classList.add("hidden");
     el.app.classList.remove("hidden");
+    loadInfo(); // also settles logout-button visibility for open servers
     load(cwd);
   }
   el.loginForm.onsubmit = async (e) => {

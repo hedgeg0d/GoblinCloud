@@ -176,13 +176,14 @@ func TestInfoEndpoint(t *testing.T) {
 		t.Fatalf("info = %d, want 200", res.StatusCode)
 	}
 	var info struct {
-		Version    string `json:"version"`
-		FTPEnabled bool   `json:"ftpEnabled"`
-		FTPPort    int    `json:"ftpPort"`
-		FTPTLS     bool   `json:"ftpTLS"`
+		Version     string `json:"version"`
+		AuthEnabled bool   `json:"authEnabled"`
+		FTPEnabled  bool   `json:"ftpEnabled"`
+		FTPPort     int    `json:"ftpPort"`
+		FTPTLS      bool   `json:"ftpTLS"`
 	}
 	json.NewDecoder(res.Body).Decode(&info)
-	if info.Version != "test" || !info.FTPEnabled || info.FTPPort != 2121 {
+	if info.Version != "test" || !info.AuthEnabled || !info.FTPEnabled || info.FTPPort != 2121 {
 		t.Fatalf("unexpected info: %+v", info)
 	}
 }

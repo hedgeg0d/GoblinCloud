@@ -27,10 +27,11 @@ const notesDir = "/.web_interface_notes"
 
 // Info is the server metadata exposed to the web UI (version, FTP details).
 type Info struct {
-	Version    string `json:"version"`
-	FTPEnabled bool   `json:"ftpEnabled"`
-	FTPPort    int    `json:"ftpPort"`
-	FTPTLS     bool   `json:"ftpTLS"`
+	Version     string `json:"version"`
+	AuthEnabled bool   `json:"authEnabled"`
+	FTPEnabled  bool   `json:"ftpEnabled"`
+	FTPPort     int    `json:"ftpPort"`
+	FTPTLS      bool   `json:"ftpTLS"`
 }
 
 // Server bundles the dependencies the HTTP handlers need.

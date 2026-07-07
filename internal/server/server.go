@@ -37,10 +37,11 @@ func Run(cfg config.Config, version string) error {
 	}
 	a := auth.New(cfg.Auth.Enabled, cfg.Auth.PasswordHash)
 	info := httpapi.Info{
-		Version:    version,
-		FTPEnabled: cfg.FTP.Enabled,
-		FTPPort:    listenPort(cfg.FTP.Listen),
-		FTPTLS:     cfg.FTP.TLS,
+		Version:     version,
+		AuthEnabled: cfg.Auth.Enabled,
+		FTPEnabled:  cfg.FTP.Enabled,
+		FTPPort:     listenPort(cfg.FTP.Listen),
+		FTPTLS:      cfg.FTP.TLS,
 	}
 	handler := httpapi.New(store, a, cfg.Global(), info)
 
